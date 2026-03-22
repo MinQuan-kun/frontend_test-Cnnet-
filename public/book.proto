@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option csharp_namespace = "GK_CNNET";
+
+service BookGrpc {
+  rpc GetAllBooks (EmptyRequest) returns (BookList); 
+  rpc CreateBook (CreateBookRequest) returns (BookModel);
+  rpc UpdateBook (UpdateBookRequest) returns (BookModel); 
+  rpc DeleteBook (DeleteRequest) returns (DeleteResponse);
+}
+
+message EmptyRequest {}
+
+message BookModel {
+  string id = 1;      
+  string title = 2;
+  string author = 3;
+  int32 price = 4;
+  string image_url = 5;
+}
+
+message CreateBookRequest {
+  string title = 1;
+  string author = 2;
+  int32 price = 3;
+  string image_url = 4;
+}
+
+message BookList {
+  repeated BookModel items = 1;
+}
+
+
+message DeleteRequest {
+  string id = 1;
+}
+
+message DeleteResponse {
+  bool success = 1;
+}
+
+message UpdateBookRequest {
+  string id = 1;
+  string title = 2;
+  string author = 3;
+  int32 price = 4;
+  string image_url = 5;
+}
