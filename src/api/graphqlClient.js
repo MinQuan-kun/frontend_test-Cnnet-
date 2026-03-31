@@ -8,12 +8,12 @@ const client = new ApolloClient({
 });
 
 export const graphqlApi = {
-    createBook: (formData, imageUrl) => {
+    createGame: (formData, imageUrl) => {
         const MUTATION = gql`
-            mutation CreateBook($input: BookCreateDtoInput!) {
-                createBook(input: $input) {
+            mutation CreateGame($input: GameCreateDtoInput!) {
+                createGame(input: $input) {
                     id
-                    title
+                    name
                 }
             }
         `;
@@ -21,47 +21,52 @@ export const graphqlApi = {
             mutation: MUTATION,
             variables: {
                 input: {
-                    title: formData.title,
-                    author: formData.author,
+                    name: formData.name,
+                    genre: formData.genre,
                     price: parseInt(formData.price),
+                    platform: formData.platform,
+                    description: formData.description,
+                    rating: parseFloat(formData.rating) || 0,
                     imageUrl: imageUrl
                 }
             }
         });
     },
-    updateBook: (id, formData, imageUrl) => {
+    updateGame: (id, formData, imageUrl) => {
         const MUTATION = gql`
-            mutation Update($id: String!, $input: BookCreateDtoInput!) {
-                updateBook(id: $id, input: $input) { id title }
+            mutation Update($id: String!, $input: GameCreateDtoInput!) {
+                updateGame(id: $id, input: $input) { id name }
             }
         `;
         return client.mutate({
             mutation: MUTATION,
             variables: { 
                 id, 
-                input: { ...formData, price: parseInt(formData.price), imageUrl } 
+                input: { ...formData, price: parseInt(formData.price), rating: parseFloat(formData.rating) || 0, imageUrl } 
             }
         });
     },
-    getAllBooks: () => {
+    getAllGames: () => {
         const QUERY = gql`
-            query GetBooks {
-                books {
+            query GetGames {
+                games {
                     id
-                    title
-                    author
+                    name
+                    genre
                     price
                     imageUrl
+                    platform
+                    description
+                    rating
                 }
             }
         `;
-        // Cần đảm bảo Backend có Query tên là 'books'
         return client.query({ query: QUERY, fetchPolicy: 'no-cache' });
     },
-    deleteBook: (id) => {
+    deleteGame: (id) => {
         const MUTATION = gql`
             mutation Delete($id: String!) {
-                deleteBook(id: $id)
+                deleteGame(id: $id)
             }
         `;
         return client.mutate({ mutation: MUTATION, variables: { id } });

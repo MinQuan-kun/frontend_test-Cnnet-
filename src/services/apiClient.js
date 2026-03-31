@@ -11,20 +11,18 @@ const restClient = axios.create({
 });
 
 const graphqlClient = new ApolloClient({
-    // Đảm bảo đường dẫn này chính xác với Backend (thường là /graphql)
     link: new HttpLink({
         uri: `${BASE_URL}/graphql`,
     }),
     cache: new InMemoryCache(),
 });
 
-export const createBookGraphQL = async (bookDto, imageUrl) => {
-    // Định nghĩa chuỗi Query Mutation
-    const CREATE_BOOK_MUTATION = gql`
-        mutation Create($input: BookCreateDtoInput!, $url: String!) {
-            createBook(input: $input, imageUrl: $url) {
+export const createGameGraphQL = async (gameDto, imageUrl) => {
+    const CREATE_GAME_MUTATION = gql`
+        mutation Create($input: GameCreateDtoInput!, $url: String!) {
+            createGame(input: $input, imageUrl: $url) {
                 id
-                title
+                name
                 price
             }
         }
@@ -33,46 +31,48 @@ export const createBookGraphQL = async (bookDto, imageUrl) => {
     const start = performance.now();
 
     const { data } = await graphqlClient.mutate({
-        mutation: CREATE_BOOK_MUTATION,
+        mutation: CREATE_GAME_MUTATION,
         variables: {
             input: {
-                title: bookDto.title,
-                author: bookDto.author,
-                price: bookDto.price
+                name: gameDto.name,
+                genre: gameDto.genre,
+                price: gameDto.price,
+                platform: gameDto.platform,
+                description: gameDto.description,
+                rating: gameDto.rating
             },
             url: imageUrl
         }
     });
 
     const duration = performance.now() - start;
-    return { data: data.createBook, duration };
+    return { data: data.createGame, duration };
 };
 
-export const createBookGRPC = async (bookDto, imageUrl) => {
-    // 1. Tải cấu trúc từ file .proto trong thư mục public
-    const root = await protobuf.load("/book.proto");
-    const CreateRequest = root.lookupType("GK_CNNET.CreateBookRequest");
+export const createGameGRPC = async (gameDto, imageUrl) => {
+    const root = await protobuf.load("/game.proto");
+    const CreateRequest = root.lookupType("CreateGameRequest");
 
-    // 2. Tạo Payload nhị phân
     const payload = {
-        title: bookDto.title,
-        author: bookDto.author,
-        price: Math.floor(Number(bookDto.price)) || 0,
-        imageUrl: imageUrl
+        name: gameDto.name,
+        genre: gameDto.genre,
+        price: Math.floor(Number(gameDto.price)) || 0,
+        imageUrl: imageUrl,
+        platform: gameDto.platform,
+        description: gameDto.description,
+        rating: parseFloat(gameDto.rating) || 0
     };
 
-    // Kiểm tra tính hợp lệ và Encode sang Uint8Array (Binary)
     const errMsg = CreateRequest.verify(payload);
     if (errMsg) throw Error(errMsg);
     const buffer = CreateRequest.encode(CreateRequest.create(payload)).finish();
 
     const start = performance.now();
 
-    // 3. Gửi request gRPC-Web (dùng fetch với mode nhị phân)
-    const response = await fetch(`${BASE_URL}/GK_CNNET.BookGrpc/CreateBook`, {
+    const response = await fetch(`${BASE_URL}/GameGrpc/CreateGame`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/grpc-web+proto', // Chuẩn nhị phân
+            'Content-Type': 'application/grpc-web+proto',
             'X-Grpc-Web': '1'
         },
         body: buffer
@@ -82,25 +82,37 @@ export const createBookGRPC = async (bookDto, imageUrl) => {
     return { success: response.ok, duration };
 };
 
+// Hàm đóng gói dữ liệu gRPC-Web
+const frameRequest = (buffer) => {
+    const frame = new Uint8Array(5 + buffer.length);
+    frame[0] = 0;
+    const len = buffer.length;
+    frame[1] = (len >> 24) & 0xFF;
+    frame[2] = (len >> 16) & 0xFF;
+    frame[3] = (len >> 8) & 0xFF;
+    frame[4] = len & 0xFF;
+    frame.set(buffer, 5);
+    return frame;
+};
+
 export const runBenchmark = async (type) => {
     const start = performance.now();
     try {
         if (type === 'REST') {
-            await restClient.get('/books');
+            await restClient.get('/games');
         }
         else if (type === 'GraphQL') {
             await graphqlClient.query({
-                query: gql`query { books { id title author } }`,
+                query: gql`query { games { id name genre } }`,
                 fetchPolicy: 'no-cache'
             });
         }
         else if (type === 'gRPC') {
-            const root = await protobuf.load("/book.proto");
-            const EmptyRequest = root.lookupType("GK_CNNET.EmptyRequest");
-            // Encode một request trống (0 bytes dữ liệu nhưng vẫn cần 5 bytes frame)
+            const root = await protobuf.load("/game.proto");
+            const EmptyRequest = root.lookupType("EmptyRequest");
             const framedPayload = frameRequest(EmptyRequest.encode({}).finish());
 
-            await fetch(`${BASE_URL}/GK_CNNET.BookGrpc/GetAllBooks`, {
+            await fetch(`${BASE_URL}/GameGrpc/GetAllGames`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/grpc-web+proto',
@@ -117,5 +129,4 @@ export const runBenchmark = async (type) => {
     }
 };
 
-// Xuất thêm restClient để dùng cho CRUD trong App.jsx
 export { restClient };

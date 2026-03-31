@@ -7,12 +7,13 @@ const restInstance = axios.create({
 });
 
 export const restApi = {
-    getAllBooks: () => restInstance.get('/books'),
-    createBook: (data) => restInstance.post('/books', data),
+    getAllGames: () => restInstance.get('/games'),
+    createGame: (data) => restInstance.post('/games', data),
+    updateGame: (id, data) => restInstance.put(`/games/${id}`, data),
     uploadImage: (file) => {
         const formData = new FormData();
         formData.append('image', file);
-        return restInstance.post('/books/upload-only', formData);
+        return restInstance.post('/games/upload-only', formData);
     },
-    deleteBook: (id) => restInstance.delete(`/books/${id}`)
+    deleteGame: (id) => restInstance.delete(`/games/${id}`)
 };
