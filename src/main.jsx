@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import BenchmarkPage from './pages/BenchmarkPage.jsx'
 import AdminPage from './pages/AdminPage.jsx'
+import GameDemoPage from './pages/GameDemoPage.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -11,6 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<BenchmarkPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/game-demo" element={<GameDemoPage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,

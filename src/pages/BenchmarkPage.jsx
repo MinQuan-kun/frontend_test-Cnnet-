@@ -276,6 +276,9 @@ const BenchmarkPage = () => {
             <Link to="/admin" className="ml-6 px-4 py-2 bg-gradient-to-r from-violet-600/20 to-cyan-600/20 border border-violet-500/30 rounded-xl text-sm font-semibold text-violet-300 hover:border-violet-400/60 hover:text-violet-200 transition-all flex items-center gap-2">
               <Shield className="w-4 h-4" /> Admin Panel
             </Link>
+            <Link to="/game-demo" className="px-4 py-2 bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 border border-emerald-500/30 rounded-xl text-sm font-semibold text-emerald-300 hover:border-emerald-400/60 hover:text-emerald-200 transition-all flex items-center gap-2">
+              <Monitor className="w-4 h-4" /> Game Demo
+            </Link>
           </div>
 
           <div className="flex gap-3">

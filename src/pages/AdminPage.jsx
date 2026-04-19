@@ -16,7 +16,7 @@ import {
 import {
   Shield, ArrowLeft, Activity, BarChart3, Clock, Zap, Hash,
   Trash2, Flame, TrendingUp, AlertCircle, Check, ChevronRight,
-  RefreshCw, Download, Timer
+  RefreshCw, Download, Timer, Gamepad2
 } from 'lucide-react';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler);
@@ -187,6 +187,9 @@ const AdminPage = () => {
             )}
             <Link to="/" className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-cyan-600 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-violet-500/25">
               <Zap className="w-4 h-4" /> Chạy Benchmark
+            </Link>
+            <Link to="/game-demo" className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-emerald-500/25">
+              <Gamepad2 className="w-4 h-4" /> Game Demo
             </Link>
           </div>
         </div>
