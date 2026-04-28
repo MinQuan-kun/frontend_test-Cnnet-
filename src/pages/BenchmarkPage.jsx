@@ -8,12 +8,12 @@ const BenchmarkPage = () => {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ rest: 0, graphql: 0, grpc: 0 });
-  const [formData, setFormData] = useState({ name: '', genre: '', price: '', platform: 'PC', description: '', rating: '' });
+  const [formData, setFormData] = useState({ name: '', price: '', platform: 'PC', description: '',});
   const [image, setImage] = useState(null);
   const [activeProtocol, setActiveProtocol] = useState('REST');
   const [history, setHistory] = useState({ rest: [], graphql: [], grpc: [] });
-  const [batchCount, setBatchCount] = useState(1); // Số lượng game cần thêm
-  const [batchResults, setBatchResults] = useState(null); // Kết quả batch add
+  const [batchCount, setBatchCount] = useState(1);
+  const [batchResults, setBatchResults] = useState(null);
   const [batchRunning, setBatchRunning] = useState(false);
 
   const runStressTest = async (type) => {
@@ -182,7 +182,6 @@ const BenchmarkPage = () => {
 
     setBatchResults(results);
 
-    // Lưu vào localStorage cho Admin Page
     const savedBenchmarks = JSON.parse(localStorage.getItem('gameBenchmarks') || '[]');
     savedBenchmarks.push({
       id: Date.now(),
@@ -271,11 +270,8 @@ const BenchmarkPage = () => {
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
             </div>
             <h1 className="text-xl font-bold tracking-tight">
-              GAME <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">PERFORMANCE LAB</span>
+              GAME <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent"> LAB</span>
             </h1>
-            <Link to="/admin" className="ml-6 px-4 py-2 bg-gradient-to-r from-violet-600/20 to-cyan-600/20 border border-violet-500/30 rounded-xl text-sm font-semibold text-violet-300 hover:border-violet-400/60 hover:text-violet-200 transition-all flex items-center gap-2">
-              <Shield className="w-4 h-4" /> Admin Panel
-            </Link>
             <Link to="/game-demo" className="px-4 py-2 bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 border border-emerald-500/30 rounded-xl text-sm font-semibold text-emerald-300 hover:border-emerald-400/60 hover:text-emerald-200 transition-all flex items-center gap-2">
               <Monitor className="w-4 h-4" /> Game Demo
             </Link>
@@ -359,12 +355,6 @@ const BenchmarkPage = () => {
                   <input type="number" value={formData.price} placeholder="500000"
                     className="w-full p-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-white placeholder-slate-500 transition-all"
                     onChange={e => setFormData({ ...formData, price: e.target.value })} />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-400 uppercase ml-1">Đánh giá</label>
-                  <input type="number" step="0.1" min="0" max="5" value={formData.rating} placeholder="0-5"
-                    className="w-full p-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-violet-500 outline-none text-white placeholder-slate-500 transition-all"
-                    onChange={e => setFormData({ ...formData, rating: e.target.value })} />
                 </div>
               </div>
 

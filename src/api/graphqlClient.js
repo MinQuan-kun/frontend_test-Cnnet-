@@ -1,6 +1,6 @@
 import { ApolloClient, InMemoryCache, gql, HttpLink } from '@apollo/client';
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://localhost:7258";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://localhost:5028";
 
 const client = new ApolloClient({
     link: new HttpLink({ uri: `${BASE_URL}/graphql` }),
@@ -84,7 +84,7 @@ export const ballSquareGraphqlApi = {
 };
 
 export const graphqlApi = {
-    createGame: (formData, imageUrl) => {
+    createGame: (formData, image) => {
         const MUTATION = gql`
             mutation CreateGame($input: GameCreateDtoInput!) {
                 createGame(input: $input) {
@@ -103,12 +103,12 @@ export const graphqlApi = {
                     platform: formData.platform,
                     description: formData.description,
                     rating: parseFloat(formData.rating) || 0,
-                    imageUrl: imageUrl
+                    image: image
                 }
             }
         });
     },
-    updateGame: (id, formData, imageUrl) => {
+    updateGame: (id, formData, image) => {
         const MUTATION = gql`
             mutation Update($id: String!, $input: GameCreateDtoInput!) {
                 updateGame(id: $id, input: $input) { id name }
@@ -118,7 +118,7 @@ export const graphqlApi = {
             mutation: MUTATION,
             variables: {
                 id,
-                input: { ...formData, price: parseInt(formData.price), rating: parseFloat(formData.rating) || 0, imageUrl }
+                input: { ...formData, price: parseInt(formData.price), rating: parseFloat(formData.rating) || 0, image }
             }
         });
     },
@@ -128,12 +128,10 @@ export const graphqlApi = {
                 games {
                     id
                     name
-                    genre
                     price
-                    imageUrl
+                    image
                     platform
                     description
-                    rating
                 }
             }
         `;

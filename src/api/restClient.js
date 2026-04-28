@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://localhost:7258";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://localhost:5028";
 
 const restInstance = axios.create({
     baseURL: `${BASE_URL}/api`,

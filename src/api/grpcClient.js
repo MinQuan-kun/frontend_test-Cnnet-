@@ -1,6 +1,6 @@
 import protobuf from 'protobufjs';
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://localhost:7258";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://localhost:5028";
 
 // Hàm đóng gói dữ liệu theo chuẩn gRPC-Web (5 byte header + data)
 const frameRequest = (buffer) => {
@@ -56,18 +56,16 @@ export const grpcApi = {
     },
 
     // 2. Thêm game mới
-    createGame: async (gameDto, imageUrl) => {
+    createGame: async (gameDto, image) => {
         const root = await getRoot();
         const RequestType = root.lookupType("CreateGameRequest");
 
         const payload = {
             name: gameDto.name,
-            genre: gameDto.genre,
             price: Math.floor(Number(gameDto.price)),
-            imageUrl: imageUrl,
+            image: image,
             platform: gameDto.platform,
             description: gameDto.description,
-            rating: parseFloat(gameDto.rating) || 0
         };
 
         const message = RequestType.create(payload);
