@@ -19,8 +19,8 @@ const graphqlClient = new ApolloClient({
 
 export const createGameGraphQL = async (gameDto, imageUrl) => {
     const CREATE_GAME_MUTATION = gql`
-        mutation Create($input: GameCreateDtoInput!, $url: String!) {
-            createGame(input: $input, imageUrl: $url) {
+        mutation Create($input: GameCreateDtoInput!) {
+            createGameAsync(input: $input) {
                 id
                 name
                 price
@@ -29,38 +29,40 @@ export const createGameGraphQL = async (gameDto, imageUrl) => {
     `;
 
     const start = performance.now();
+    const platforms = gameDto.platforms || (gameDto.platform ? [gameDto.platform] : []);
 
     const { data } = await graphqlClient.mutate({
         mutation: CREATE_GAME_MUTATION,
         variables: {
             input: {
                 name: gameDto.name,
-                genre: gameDto.genre,
-                price: gameDto.price,
-                platform: gameDto.platform,
-                description: gameDto.description,
-                rating: gameDto.rating
-            },
-            url: imageUrl
+                price: String(gameDto.price || '0'),
+                categoryIds: gameDto.categoryIds || [],
+                platforms: platforms,
+                description: gameDto.description || '',
+                image: imageUrl || '',
+                downloadLink: gameDto.downloadLink || ''
+            }
         }
     });
 
     const duration = performance.now() - start;
-    return { data: data.createGame, duration };
+    return { data: data.createGameAsync, duration };
 };
 
 export const createGameGRPC = async (gameDto, imageUrl) => {
     const root = await protobuf.load("/game.proto");
     const CreateRequest = root.lookupType("CreateGameRequest");
 
+    const platforms = gameDto.platforms || (gameDto.platform ? [gameDto.platform] : []);
     const payload = {
         name: gameDto.name,
-        genre: gameDto.genre,
         price: Math.floor(Number(gameDto.price)) || 0,
-        imageUrl: imageUrl,
-        platform: gameDto.platform,
-        description: gameDto.description,
-        rating: parseFloat(gameDto.rating) || 0
+        categoryIds: gameDto.categoryIds || [],
+        platforms: platforms,
+        image: imageUrl || '',
+        description: gameDto.description || '',
+        downloadLink: gameDto.downloadLink || ''
     };
 
     const errMsg = CreateRequest.verify(payload);
@@ -75,7 +77,7 @@ export const createGameGRPC = async (gameDto, imageUrl) => {
             'Content-Type': 'application/grpc-web+proto',
             'X-Grpc-Web': '1'
         },
-        body: buffer
+        body: frameRequest(buffer)
     });
 
     const duration = performance.now() - start;
@@ -103,7 +105,7 @@ export const runBenchmark = async (type) => {
         }
         else if (type === 'GraphQL') {
             await graphqlClient.query({
-                query: gql`query { games { id name genre } }`,
+                query: gql`query { games { id name price platforms image } }`,
                 fetchPolicy: 'no-cache'
             });
         }

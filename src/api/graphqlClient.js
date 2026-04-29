@@ -90,20 +90,26 @@ export const graphqlApi = {
                 createGame(input: $input) {
                     id
                     name
+                    price
+                    platforms
+                    platform
+                    image
                 }
             }
         `;
+        // Map frontend formData to backend GameCreateDto fields
+        const platforms = formData.platforms || (formData.platform ? [formData.platform] : []);
         return client.mutate({
             mutation: MUTATION,
             variables: {
                 input: {
                     name: formData.name,
-                    genre: formData.genre,
-                    price: parseInt(formData.price),
-                    platform: formData.platform,
-                    description: formData.description,
-                    rating: parseFloat(formData.rating) || 0,
-                    image: image
+                    price: String(formData.price || '0'),
+                    categoryIds: formData.categoryIds || [],
+                    platforms: platforms,
+                    description: formData.description || '',
+                    image: image || formData.image || '',
+                    downloadLink: formData.downloadLink || ''
                 }
             }
         });
@@ -111,14 +117,23 @@ export const graphqlApi = {
     updateGame: (id, formData, image) => {
         const MUTATION = gql`
             mutation Update($id: String!, $input: GameCreateDtoInput!) {
-                updateGame(id: $id, input: $input) { id name }
+                updateGame(id: $id, input: $input) { id name price platforms platform image }
             }
         `;
+        const platforms = formData.platforms || (formData.platform ? [formData.platform] : []);
         return client.mutate({
             mutation: MUTATION,
             variables: {
                 id,
-                input: { ...formData, price: parseInt(formData.price), rating: parseFloat(formData.rating) || 0, image }
+                input: {
+                    name: formData.name,
+                    price: String(formData.price || '0'),
+                    categoryIds: formData.categoryIds || [],
+                    platforms: platforms,
+                    description: formData.description || '',
+                    image: image || formData.image || '',
+                    downloadLink: formData.downloadLink || ''
+                }
             }
         });
     },
@@ -129,9 +144,12 @@ export const graphqlApi = {
                     id
                     name
                     price
-                    image
+                    categoryIds
+                    platforms
                     platform
                     description
+                    image
+                    downloadLink
                 }
             }
         `;
@@ -144,6 +162,18 @@ export const graphqlApi = {
             }
         `;
         return client.mutate({ mutation: MUTATION, variables: { id } });
+    },
+    // Dùng cho test so sánh tính linh hoạt (chỉ lấy id và name)
+    getGamesPartial: () => {
+        const QUERY = gql`
+            query GetGamesPartial {
+                games {
+                    id
+                    name
+                }
+            }
+        `;
+        return client.query({ query: QUERY, fetchPolicy: 'no-cache' });
     }
 };
 

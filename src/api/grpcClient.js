@@ -31,7 +31,7 @@ export const grpcApi = {
     // 1. Lấy danh sách game
     getAllGames: async () => {
         const root = await getRoot();
-        const RequestType = root.lookupType("EmptyRequest");
+        const RequestType = root.lookupType("GameEmptyRequest");
         const ResponseType = root.lookupType("GameList");
 
         const buffer = RequestType.encode(RequestType.create({})).finish();
@@ -60,12 +60,16 @@ export const grpcApi = {
         const root = await getRoot();
         const RequestType = root.lookupType("CreateGameRequest");
 
+        // Map to proto CreateGameRequest fields
+        const platforms = gameDto.platforms || (gameDto.platform ? [gameDto.platform] : []);
         const payload = {
             name: gameDto.name,
-            price: Math.floor(Number(gameDto.price)),
-            image: image,
-            platform: gameDto.platform,
-            description: gameDto.description,
+            price: Math.floor(Number(gameDto.price)) || 0,
+            categoryIds: gameDto.categoryIds || [],
+            platforms: platforms,
+            image: image || gameDto.image || '',
+            description: gameDto.description || '',
+            downloadLink: gameDto.downloadLink || '',
         };
 
         const message = RequestType.create(payload);
@@ -92,7 +96,7 @@ export const grpcApi = {
     // 3. Xóa game
     deleteGame: async (id) => {
         const root = await getRoot();
-        const DeleteRequest = root.lookupType("DeleteRequest");
+        const DeleteRequest = root.lookupType("GameDeleteRequest");
         const buffer = DeleteRequest.encode({ id }).finish();
 
         return fetch(`${BASE_URL}/GameGrpc/DeleteGame`, {
